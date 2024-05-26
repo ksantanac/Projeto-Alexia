@@ -4,8 +4,10 @@ import wikipedia
 import requests
 from googletrans import Translator
 import webbrowser
-from api_key import api_keym
+from api_key import api_keym, api_gemini
 import subprocess
+import google.generativeai as genai
+
 
 reconhecedor = sr.Recognizer()
 sintetizador = pyttsx3.init()
@@ -152,6 +154,36 @@ def abrir_vscode():
     except Exception as e:
         falar(f"Não consegui abrir o aplicativo: {e}")
 
+
+def geminiAi(pergunta):
+    # Configure a chave da API
+    genai.configure(api_key=api_gemini)
+
+    # Lista os modelos disponíveis e verifica se eles suportam 'generateContent'
+    model_name = None
+    for m in genai.list_models():
+        if 'generateContent' in m.supported_generation_methods:
+            model_name = m.name
+            break
+
+    if model_name:
+        # Inicializa o modelo
+        model = genai.GenerativeModel(model_name)
+
+        # Gera o conteúdo com a pergunta
+
+        response = model.generate_content(f"{pergunta}")
+
+        # Imprime apenas o texto da resposta
+        resposta = response.text
+
+        return resposta
+
+    else:
+        print("Nenhum modelo com suporte para 'generateContent' foi encontrado.")
+
+
+
 def main():
     falar("Fala comigo!")
     while True:
@@ -212,6 +244,19 @@ def main():
                         abrir_vscode()
                         if not deseja_continuar():
                             break
+
+                    elif "falar com gemini" in comando_lower:
+                        falar("O que você gostaria de saber?")
+                        pergunta = reconhecer_fala(timeout=10)
+                        if pergunta:
+                            resposta = geminiAi(pergunta)
+                            if resposta:
+                                falar(f"{resposta}")
+                            else:
+                                falar("Não consegui obter uma resposta do Gemini.")
+                        if not deseja_continuar():
+                            break
+
 
                     elif "sair" in comando_lower:
                         falar("Até logo, mestre.")
