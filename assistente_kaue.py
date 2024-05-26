@@ -4,7 +4,7 @@ import wikipedia
 import requests
 from googletrans import Translator
 import webbrowser
-import os
+from api_key import api_keym
 import subprocess
 
 reconhecedor = sr.Recognizer()
@@ -112,7 +112,7 @@ def deseja_continuar():
     return False
 
 def previsao_do_tempo(cidade):
-    api_key = "2445e34b0549d9e82137ece6efae1ed7"  # Substitua pela sua chave da API do OpenWeatherMap
+    api_key = api_keym  # Substitua pela sua chave da API do OpenWeatherMap
     base_url = "http://api.openweathermap.org/data/2.5/weather?"
     complete_url = base_url + "q=" + cidade + "&appid=" + api_key + "&lang=pt&units=metric"
     response = requests.get(complete_url)
